@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Magic Multiplication</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell" aria-live="polite">
+      <header class="hero-panel">
+        <h1>Welcome to Magic Multiplication</h1>
+      </header>
+
+      <section id="setupView" class="panel">
+        <h2>Before You Start</h2>
+        <p class="support-copy">Welcome! Press Start to begin a 10-question typing game.</p>
+
+        <div class="setup-actions">
+          <button id="startGameButton" class="primary-button" type="button">Start Game</button>
+        </div>
+
+        <p id="setupStatus" class="status-line">Ready.</p>
+      </section>
+
+      <section id="gameView" class="panel hidden">
+        <div class="question-block">
+          <p id="roundProgressText" class="round-progress-text">Question 1 / 10</p>
+          <p class="question-label">Question</p>
+          <p id="questionText" class="question-text">2 × 2 = ?</p>
+        </div>
+
+        <div id="resultBox" class="result-box">Your answer will appear here.</div>
+
+        <form id="typedAnswerForm" class="typed-form" novalidate>
+          <label for="typedAnswerInput" class="typed-label">Type your answer</label>
+          <div class="typed-input-row">
+            <input
+              id="typedAnswerInput"
+              class="typed-input"
+              type="text"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              autocomplete="off"
+              maxlength="3"
+              placeholder="?"
+            />
+            <button class="primary-button small" type="submit">Submit</button>
+          </div>
+        </form>
+
+        <section class="score-box">
+          <div class="score-row">
+            <p>Correct: <span id="correctCountText">0</span> / 10</p>
+            <p>Streak: <span id="streakText">0</span></p>
+            <p>Combo: <span id="comboText">0</span></p>
+          </div>
+          <div class="reward-header">
+            <h3>Rewards</h3>
+            <p>Correct = ⭐, every 3 streak = sticker</p>
+          </div>
+          <div class="reward-bins">
+            <div class="reward-bin">
+              <p class="reward-bin-label">Stars</p>
+              <div id="starTray" class="reward-tray" aria-label="Star tray"></div>
+            </div>
+            <div class="reward-bin">
+              <p class="reward-bin-label">Sanrio Stickers</p>
+              <div id="stickerTray" class="reward-tray" aria-label="Sticker tray"></div>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section id="endGameView" class="panel hidden">
+        <h2>Great Job!</h2>
+        <p id="endSummaryText" class="support-copy">Score summary appears here.</p>
+        <div class="setup-actions">
+          <button id="restartButton" class="primary-button" type="button">Restart Game</button>
+        </div>
+      </section>
+    </main>
+
+    <script src="./app.js?v=1772110496"></script>
+  </body>
+</html>

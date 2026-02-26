@@ -50,6 +50,7 @@ Primary fact range: 2 through 10.
 - Correct when parsed numeric input equals `x * y`.
 - Incorrect otherwise.
 - After answer evaluation, show the resolved equation in the question area (`x × y = z`).
+- For an incorrect non-empty typed answer, the displayed feedback may include `You said N.` before the correction.
 
 ### 4.5 Advance Timing
 
@@ -70,7 +71,7 @@ Primary fact range: 2 through 10.
   - Correct count
   - Wrong count
   - Streak count (consecutive correct for 3-streak sticker)
-  - Combo count (consecutive correct for 10-combo big sticker)
+  - Combo count (consecutive correct for 10-combo sticker)
 
 ### 5.2 Reward Rules
 
@@ -80,7 +81,7 @@ Primary fact range: 2 through 10.
   - Add one regular sticker reward.
   - Reset streak count to 0.
 - On every 10 consecutive correct answers:
-  - Add one big sticker reward.
+  - Add one sticker reward.
   - Reset combo count to 0.
 - Any incorrect answer resets both streak and combo to 0.
 
@@ -104,11 +105,21 @@ Primary fact range: 2 through 10.
 - If a speech event errors or times out, game must continue without freezing.
 - Speech should never prevent question progression beyond the defined 2-second advance behavior.
 
+### 6.3 Sound Effects Reliability Rules
+
+- Optional Web Audio sound effects may play for:
+  - Correct answer reward
+  - Sticker milestone reward
+  - Incorrect answer feedback
+- If sound playback is unavailable or fails, gameplay must continue without freezing.
+- Sound effects must not block question progression beyond the defined 2-second advance behavior.
+
 ## 7) UI Requirements
 
-## 7.1 Start Screen
+### 7.1 Start Screen
 
-- Display title text: "Welcome to Magic Multiplication".
+- Display title text: "Welcome to Magic Multiplication" in the main header/hero.
+- Setup panel may include a short subheading (for example, "Before You Start") plus helper text.
 - Display short helper text explaining 10-question typing game.
 - Provide a clear primary button: "Start Game".
 - Display lightweight status text area for startup messaging.
@@ -134,7 +145,6 @@ Primary fact range: 2 through 10.
   - Correct answers out of 10
   - Star count
   - Sticker count
-  - Big sticker count
 - Show restart button.
 
 ## 8) Edge Cases and Deterministic Behavior
@@ -173,7 +183,7 @@ Primary fact range: 2 through 10.
 ### 9.4 Reward Milestones
 
 - Every 3 consecutive correct answers yields one regular sticker and resets 3-streak counter.
-- Every 10 consecutive correct answers yields one big sticker and resets 10-combo counter.
+- Every 10 consecutive correct answers yields one sticker and resets 10-combo counter.
 - Any incorrect answer resets both streak and combo counters.
 
 ### 9.5 Voice

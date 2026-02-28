@@ -19,6 +19,28 @@
       </header>
 
       <section id="setupView" class="panel">
+        <div class="session-stepper" aria-label="Session length control">
+          <p class="session-stepper-label">Games this session</p>
+          <div class="session-stepper-controls">
+            <button
+              id="sessionGamesDecrementButton"
+              class="secondary-button session-stepper-button"
+              type="button"
+              aria-label="Decrease games per session"
+            >
+              -
+            </button>
+            <p id="sessionGamesValueText" class="session-stepper-value" aria-live="polite">5</p>
+            <button
+              id="sessionGamesIncrementButton"
+              class="secondary-button session-stepper-button"
+              type="button"
+              aria-label="Increase games per session"
+            >
+              +
+            </button>
+          </div>
+        </div>
         <div class="setup-actions">
           <button id="startGameButton" class="primary-button" type="button">Start Game</button>
         </div>
@@ -76,8 +98,9 @@
       </section>
 
       <section id="endGameView" class="panel hidden">
-        <h2>Great Job!</h2>
+        <h2 id="endTitleText">Great job!</h2>
         <p id="endSummaryText" class="support-copy">Score summary appears here.</p>
+        <div id="sessionStickerBreakdown" class="session-sticker-breakdown hidden"></div>
         <div class="setup-actions">
           <button id="restartButton" class="primary-button" type="button">Resume Game</button>
         </div>

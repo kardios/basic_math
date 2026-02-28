@@ -29,6 +29,8 @@ Primary fact range: 2 through 10.
 - A round consists of exactly 10 questions.
 - Each question is a multiplication fact where both operands are integers from 2 to 10 inclusive.
 - At question 10 completion, the round ends and an end-of-round summary is shown.
+- Rounds are grouped into a session with configurable length (`gamesPerSession`).
+- Session length defaults to 5 rounds and is adjustable on the start screen from 1 to 20 rounds.
 
 ### 4.2 Question Selection and Randomization
 
@@ -60,8 +62,10 @@ Primary fact range: 2 through 10.
 
 ### 4.6 End of Round
 
-- After question 10 is evaluated, show end screen with score summary.
-- End screen includes a `Resume Game` button to begin a new 10-question round.
+- After question 10 is evaluated, show end screen.
+- If the session is not complete, show per-round summary and `Resume Game` to begin the next round.
+- If the session is complete, show final session summary and `Start New Session`.
+- Starting a new session resets session progress counters and keeps the currently selected session-length value.
 
 ## 5) Scoring and Rewards
 
@@ -74,6 +78,10 @@ Primary fact range: 2 through 10.
   - Combo count (consecutive correct for 10-combo sticker)
   - Total stars count (across the current browser session)
   - Total stickers count (across the current browser session)
+  - Session games played
+  - Configured games per session
+  - Per-sticker-type session counts for final collection breakdown
+  - Earned sticker instance list for final sticker wall rendering (duplicates included)
 
 Session totals are in-memory only (no local storage) and reset on page refresh/reopen.
 
@@ -89,6 +97,15 @@ Session totals are in-memory only (no local storage) and reset on page refresh/r
   - Reset combo count to 0.
 - Any incorrect answer resets both streak and combo to 0.
 
+### 5.3 Sticker Selection Rules
+
+- Sticker selection uses equal probability across all entries in `STICKER_CATALOG`.
+- Current catalog size is 20 stickers.
+- Selection source of truth is the catalog array (adding/removing entries changes draw probability automatically).
+- Immediate duplicate stickers are avoided with bounded rerolls.
+  - If a drawn sticker equals the previous sticker, reroll up to 4 times.
+  - If still duplicated after rerolls, accept the draw.
+
 ## 6) Voice Behavior (Typed + Spoken UX)
 
 ### 6.1 Speech Events
@@ -100,8 +117,9 @@ Session totals are in-memory only (no local storage) and reset on page refresh/r
 - After answer evaluation:
   - Correct: "Correct, X times Y equals Z."
   - Incorrect: "Incorrect, X times Y equals Z."
-- At end of round, speak summary:
-  - "You got N out of 10 correct." plus earned reward counts.
+- At round/session end, speak context-appropriate summary:
+  - Non-final round: "You got N out of 10 correct." plus round/session totals.
+  - Final session end: "Session complete! You earned X stars and Y stickers."
 
 ### 6.2 Speech Reliability Rules
 
@@ -123,6 +141,9 @@ Session totals are in-memory only (no local storage) and reset on page refresh/r
 ### 7.1 Start Screen
 
 - Display title text: "Magic Multiplication" in the main header/hero.
+- Show session-length stepper labeled "Games this session".
+  - Decrement (`-`) and increment (`+`) controls.
+  - Default value `5`, min `1`, max `20`.
 - Provide a clear primary button: "Start Game".
 
 ### 7.2 Game Screen
@@ -144,12 +165,18 @@ Session totals are in-memory only (no local storage) and reset on page refresh/r
 
 ### 7.3 End Screen
 
-- Show positive completion heading.
-- Show summary sentence with:
-  - Correct answers out of 10
-  - Stars and stickers earned this round
-  - Total stars and stickers for current session (`Total: ...`)
-- Show `Resume Game` button.
+- Show end-of-round heading and summary content.
+- Non-final rounds:
+  - Show score summary with round result and session totals.
+  - Show `Resume Game` button.
+- Final session end:
+  - Show heading "Session complete!".
+  - Show final totals for stars and stickers.
+  - Show a celebratory sticker wall with every earned sticker instance (duplicates included).
+  - Sticker wall tiles use the same visual size as in-game sticker rewards.
+  - Show `Start New Session` button.
+- Final-mode sticker wall replaces the compact breakdown content in the same wrap-up container.
+- Wrap-up sticker wall uses responsive grid layout (5 per row on large screens, fewer columns on narrower screens).
 
 ## 8) Edge Cases and Deterministic Behavior
 
@@ -172,7 +199,9 @@ Session totals are in-memory only (no local storage) and reset on page refresh/r
 - Starting a round always displays `Question 1 / 10`.
 - After each answered question, UI advances to the next question within approximately 2 seconds.
 - Round ends after exactly 10 evaluated questions.
-- `Resume Game` from end screen starts a fresh 10-question round.
+- `Resume Game` from non-final end screen starts the next 10-question round in the same session.
+- Session completes after the configured number of rounds.
+- On session completion, end screen shows final summary and `Start New Session`.
 
 ### 9.2 Randomization
 
@@ -193,10 +222,28 @@ Session totals are in-memory only (no local storage) and reset on page refresh/r
 - Total stars/stickers continue across rounds during the same page session.
 - Total stars/stickers reset when the page is refreshed or reopened.
 
-### 9.5 Voice
+### 9.5 Session Length Control
+
+- Start screen stepper initially shows `5`.
+- Decrement and increment controls clamp at `1` and `20`.
+- Selected session length is applied at session start.
+- Completing that many rounds triggers final session summary.
+- Starting a new session preserves the selected stepper value.
+
+### 9.6 Sticker Draw and Wrap-Up Collection
+
+- Sticker draw is approximately uniform across catalog entries over many draws.
+- Immediate back-to-back duplicates are reduced by reroll logic.
+- Final session wrap-up displays every earned sticker instance in a full-size sticker wall (duplicates included).
+- Earned sticker instance tracking is reset only when a new session starts, not between rounds.
+
+### 9.7 Voice
 
 - Welcome, question prompts, answer feedback, and end summary are attempted via speech synthesis.
 - If speech fails, app remains fully playable and progression still works.
+- End-state voice check:
+  - Non-final end screen speech includes `N out of 10`.
+  - Final session-end speech includes `Session complete` and total stars/stickers.
 
 ## 10) Out of Scope (This Version)
 

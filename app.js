@@ -1,13 +1,101 @@
 const TOTAL_QUESTIONS = 10;
+const DEFAULT_GAMES_PER_SESSION = 5;
+const MIN_GAMES_PER_SESSION = 1;
+const MAX_GAMES_PER_SESSION = 20;
 const AUTO_NEXT_DELAY_MS = 2000;
 const FEEDBACK_SPEECH_MAX_WAIT_MS = 5000;
 const STREAK_FOR_STICKER = 3;
 const COMBO_FOR_BONUS_STICKER = 10;
 
-const STICKER_IMAGE_PATHS = [
-  "./assets/stickers/sanrio_kitty_bow.svg",
-  "./assets/stickers/sanrio_bunny_ribbon.svg",
-  "./assets/stickers/sanrio_puppy_cloud.svg",
+const STICKER_CATALOG = [
+  { id: "kitty_bow", src: "./assets/stickers/sanrio_kitty_bow.svg", rarity: "common" },
+  { id: "bunny_ribbon", src: "./assets/stickers/sanrio_bunny_ribbon.svg", rarity: "rare" },
+  { id: "puppy_cloud", src: "./assets/stickers/sanrio_puppy_cloud.svg", rarity: "ultra" },
+  {
+    id: "inspired_common_bowcat",
+    src: "./assets/stickers/sanrio_inspired_common_bowcat.svg",
+    rarity: "common",
+  },
+  {
+    id: "inspired_common_bunnywink",
+    src: "./assets/stickers/sanrio_inspired_common_bunnywink.svg",
+    rarity: "common",
+  },
+  {
+    id: "inspired_common_puppyheart",
+    src: "./assets/stickers/sanrio_inspired_common_puppyheart.svg",
+    rarity: "common",
+  },
+  {
+    id: "inspired_common_cloudfriend",
+    src: "./assets/stickers/sanrio_inspired_common_cloudfriend.svg",
+    rarity: "common",
+  },
+  {
+    id: "inspired_common_flowerpal",
+    src: "./assets/stickers/sanrio_inspired_common_flowerpal.svg",
+    rarity: "common",
+  },
+  {
+    id: "inspired_common_starsprout",
+    src: "./assets/stickers/sanrio_inspired_common_starsprout.svg",
+    rarity: "common",
+  },
+  {
+    id: "inspired_rare_royalcrown",
+    src: "./assets/stickers/sanrio_inspired_rare_royalcrown.svg",
+    rarity: "rare",
+  },
+  {
+    id: "inspired_rare_gemwink",
+    src: "./assets/stickers/sanrio_inspired_rare_gemwink.svg",
+    rarity: "rare",
+  },
+  {
+    id: "inspired_rare_cometfriend",
+    src: "./assets/stickers/sanrio_inspired_rare_cometfriend.svg",
+    rarity: "rare",
+  },
+  {
+    id: "inspired_cozy_bear_head",
+    src: "./assets/stickers/inspired_cozy_bear_head.svg",
+    rarity: "common",
+  },
+  {
+    id: "inspired_snow_bear_head",
+    src: "./assets/stickers/inspired_snow_bear_head.svg",
+    rarity: "common",
+  },
+  {
+    id: "inspired_pancake_bear",
+    src: "./assets/stickers/inspired_pancake_bear.svg",
+    rarity: "common",
+  },
+  {
+    id: "inspired_teatime_snow_bear",
+    src: "./assets/stickers/inspired_teatime_snow_bear.svg",
+    rarity: "common",
+  },
+  {
+    id: "inspired_nap_duo_badge",
+    src: "./assets/stickers/inspired_nap_duo_badge.svg",
+    rarity: "common",
+  },
+  {
+    id: "inspired_blob_friend",
+    src: "./assets/stickers/inspired_blob_friend.svg",
+    rarity: "common",
+  },
+  {
+    id: "inspired_minimal_bunny_face",
+    src: "./assets/stickers/inspired_minimal_bunny_face.svg",
+    rarity: "common",
+  },
+  {
+    id: "inspired_chubby_kitty_head",
+    src: "./assets/stickers/inspired_chubby_kitty_head.svg",
+    rarity: "common",
+  },
 ];
 
 const setupView = document.getElementById("setupView");
@@ -15,7 +103,12 @@ const gameView = document.getElementById("gameView");
 const endGameView = document.getElementById("endGameView");
 const startGameButton = document.getElementById("startGameButton");
 const restartButton = document.getElementById("restartButton");
+const endTitleText = document.getElementById("endTitleText");
 const endSummaryText = document.getElementById("endSummaryText");
+const sessionStickerBreakdown = document.getElementById("sessionStickerBreakdown");
+const sessionGamesDecrementButton = document.getElementById("sessionGamesDecrementButton");
+const sessionGamesIncrementButton = document.getElementById("sessionGamesIncrementButton");
+const sessionGamesValueText = document.getElementById("sessionGamesValueText");
 
 const roundProgressText = document.getElementById("roundProgressText");
 const questionText = document.getElementById("questionText");
@@ -45,6 +138,12 @@ const state = {
   normalStickerCount: 0,
   sessionStarCount: 0,
   sessionStickerCount: 0,
+  sessionGamesPlayed: 0,
+  gamesPerSession: DEFAULT_GAMES_PER_SESSION,
+  activeGamesPerSession: DEFAULT_GAMES_PER_SESSION,
+  sessionStickerTypeCounts: createEmptyStickerCountMap(),
+  sessionEarnedStickerIds: [],
+  sessionComplete: false,
   x: 2,
   y: 2,
   expected: 4,
@@ -55,27 +154,42 @@ const state = {
   questionPromptTimeoutId: null,
   feedbackSpeechPlaying: false,
   feedbackSpeechDeadlineMs: 0,
-  stickerIndex: 0,
+  lastStickerId: null,
   didStartOnce: false,
 };
 
 let sharedAudioContext = null;
 
 startGameButton.addEventListener("click", startGame);
-restartButton.addEventListener("click", startGame);
+restartButton.addEventListener("click", onEndActionButton);
+sessionGamesDecrementButton.addEventListener("click", () => updateGamesPerSession(-1));
+sessionGamesIncrementButton.addEventListener("click", () => updateGamesPerSession(1));
 typedAnswerForm.addEventListener("submit", onTypedSubmit);
 typedAnswerInput.addEventListener("input", onTypedInput);
 
 initialize();
 
 function initialize() {
+  resetSessionState({ preserveSelection: false });
   showSetupView();
+}
+
+function onEndActionButton() {
+  if (state.sessionComplete) {
+    resetSessionState();
+    showSetupView();
+    return;
+  }
+  startGame();
 }
 
 function startGame() {
   clearNextQuestionTimeout();
   stopAllSpeech();
   unlockAudio();
+  if (state.sessionGamesPlayed === 0) {
+    state.activeGamesPerSession = state.gamesPerSession;
+  }
 
   if (!state.didStartOnce) {
     state.didStartOnce = true;
@@ -95,12 +209,13 @@ function beginRound() {
   state.comboCount = 0;
   state.normalStickerCount = 0;
   state.questionPool = buildQuestionPool(TOTAL_QUESTIONS);
-  state.stickerIndex = 0;
+  state.lastStickerId = null;
   state.nextQuestionDueAtMs = 0;
   state.questionPromptToken = 0;
   state.questionPromptTimeoutId = null;
   state.feedbackSpeechPlaying = false;
   state.feedbackSpeechDeadlineMs = 0;
+  state.sessionComplete = false;
 
   starTray.innerHTML = "";
   stickerTray.innerHTML = "";
@@ -236,22 +351,117 @@ function moveToAnsweredState() {
 function endGame() {
   clearNextQuestionTimeout();
   state.phase = "ended";
+  state.sessionGamesPlayed += 1;
   gameView.classList.add("hidden");
   setupView.classList.add("hidden");
   endGameView.classList.remove("hidden");
 
-  const summary =
+  if (state.sessionGamesPlayed >= state.activeGamesPerSession) {
+    state.sessionComplete = true;
+    endTitleText.textContent = "Session complete!";
+    endSummaryText.textContent =
+      `You completed ${state.activeGamesPerSession} games. ` +
+      `Total stars: ${state.sessionStarCount}. ` +
+      `Total stickers: ${state.sessionStickerCount}.`;
+    renderSessionStickerBreakdown();
+    restartButton.textContent = "Start New Session";
+    speakFinalSummary(
+      `Session complete! You earned ${state.sessionStarCount} stars and ` +
+        `${state.sessionStickerCount} stickers.`
+    );
+    return;
+  }
+
+  const endTitle = getEndTitleByScore(state.correctCount);
+  const roundsLeft = state.activeGamesPerSession - state.sessionGamesPlayed;
+  endTitleText.textContent = endTitle;
+  endSummaryText.textContent =
     `You got ${state.correctCount} out of ${TOTAL_QUESTIONS} correct. ` +
     `You earned ${state.correctCount} stars and ${state.normalStickerCount} stickers this round. ` +
-    `Total: ${state.sessionStarCount} stars and ${state.sessionStickerCount} stickers.`;
-  endSummaryText.textContent = summary;
-  speakFinalSummary(summary);
+    `Total: ${state.sessionStarCount} stars and ${state.sessionStickerCount} stickers. ` +
+    `${roundsLeft} game${roundsLeft === 1 ? "" : "s"} left in this session.`;
+  clearSessionStickerBreakdown();
+  restartButton.textContent = "Resume Game";
+  speakFinalSummary(`${endTitle} ${endSummaryText.textContent}`);
+}
+
+function getEndTitleByScore(correctCount) {
+  if (correctCount <= 4) {
+    return "Let's practice more!";
+  }
+  if (correctCount <= 8) {
+    return "Making progress!";
+  }
+  return "Great job!";
 }
 
 function showSetupView() {
   gameView.classList.add("hidden");
   endGameView.classList.add("hidden");
   setupView.classList.remove("hidden");
+}
+
+function resetSessionState({ preserveSelection = true } = {}) {
+  clearNextQuestionTimeout();
+  stopAllSpeech();
+  const retainedGamesPerSession = preserveSelection
+    ? state.gamesPerSession
+    : DEFAULT_GAMES_PER_SESSION;
+  const clampedGamesPerSession = clampGamesPerSession(retainedGamesPerSession);
+  state.phase = "setup";
+  state.questionIndex = 0;
+  state.correctCount = 0;
+  state.wrongCount = 0;
+  state.streakCount = 0;
+  state.comboCount = 0;
+  state.normalStickerCount = 0;
+  state.sessionStarCount = 0;
+  state.sessionStickerCount = 0;
+  state.sessionGamesPlayed = 0;
+  state.gamesPerSession = clampedGamesPerSession;
+  state.activeGamesPerSession = clampedGamesPerSession;
+  state.sessionStickerTypeCounts = createEmptyStickerCountMap();
+  state.sessionEarnedStickerIds = [];
+  state.questionPool = [];
+  state.nextQuestionDueAtMs = 0;
+  state.questionPromptToken = 0;
+  state.questionPromptTimeoutId = null;
+  state.feedbackSpeechPlaying = false;
+  state.feedbackSpeechDeadlineMs = 0;
+  state.lastStickerId = null;
+  state.sessionComplete = false;
+  state.didStartOnce = false;
+  typedAnswerInput.value = "";
+  starTray.innerHTML = "";
+  stickerTray.innerHTML = "";
+  restartButton.textContent = "Resume Game";
+  clearSessionStickerBreakdown();
+  updateSessionGamesControl();
+  updateStats();
+}
+
+function clampGamesPerSession(value) {
+  return Math.max(MIN_GAMES_PER_SESSION, Math.min(MAX_GAMES_PER_SESSION, value));
+}
+
+function updateGamesPerSession(delta) {
+  const nextValue = clampGamesPerSession(state.gamesPerSession + delta);
+  if (nextValue === state.gamesPerSession) {
+    updateSessionGamesControl();
+    return;
+  }
+  state.gamesPerSession = nextValue;
+  updateSessionGamesControl();
+}
+
+function updateSessionGamesControl() {
+  sessionGamesValueText.textContent = String(state.gamesPerSession);
+  const atMin = state.gamesPerSession <= MIN_GAMES_PER_SESSION;
+  const atMax = state.gamesPerSession >= MAX_GAMES_PER_SESSION;
+  sessionGamesDecrementButton.disabled = atMin;
+  sessionGamesIncrementButton.disabled = atMax;
+  sessionGamesDecrementButton.setAttribute("aria-disabled", String(atMin));
+  sessionGamesIncrementButton.setAttribute("aria-disabled", String(atMax));
 }
 
 function updateStats() {
@@ -278,13 +488,83 @@ function addRewardCross() {
 }
 
 function addRewardSticker() {
+  const sticker = pickStickerAvoidImmediateRepeat();
   const node = document.createElement("img");
   node.className = "reward-friend";
   node.alt = "Sticker reward";
-  node.src = STICKER_IMAGE_PATHS[state.stickerIndex % STICKER_IMAGE_PATHS.length];
-  state.stickerIndex += 1;
+  node.src = sticker.src;
   stickerTray.appendChild(node);
   state.sessionStickerCount += 1;
+  state.sessionStickerTypeCounts[sticker.id] =
+    (state.sessionStickerTypeCounts[sticker.id] || 0) + 1;
+  state.sessionEarnedStickerIds.push(sticker.id);
+}
+
+function createEmptyStickerCountMap() {
+  const counts = {};
+  STICKER_CATALOG.forEach((sticker) => {
+    counts[sticker.id] = 0;
+  });
+  return counts;
+}
+
+function clearSessionStickerBreakdown() {
+  sessionStickerBreakdown.innerHTML = "";
+  sessionStickerBreakdown.classList.add("hidden");
+}
+
+function renderSessionStickerBreakdown() {
+  if (state.sessionEarnedStickerIds.length === 0) {
+    clearSessionStickerBreakdown();
+    return;
+  }
+
+  const stickerById = new Map(STICKER_CATALOG.map((sticker) => [sticker.id, sticker]));
+  const wallMarkup = state.sessionEarnedStickerIds
+    .map((stickerId) => {
+      const sticker = stickerById.get(stickerId);
+      if (!sticker) {
+        return `<div class="session-sticker-wall-fallback" aria-hidden="true">?</div>`;
+      }
+      const stickerName = formatStickerName(stickerId);
+      return `<img class="reward-friend session-wall-sticker" src="${sticker.src}" alt="${stickerName} sticker" loading="lazy" />`;
+    })
+    .join("");
+
+  sessionStickerBreakdown.innerHTML =
+    `<h3>Sticker Wall</h3>` +
+    `<div class="session-sticker-wall">${wallMarkup}</div>`;
+  sessionStickerBreakdown.classList.remove("hidden");
+}
+
+function formatStickerName(stickerId) {
+  return stickerId
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function pickUniformSticker() {
+  return STICKER_CATALOG[randomInt(0, STICKER_CATALOG.length - 1)];
+}
+
+function pickStickerAvoidImmediateRepeat() {
+  const maxRerolls = 4;
+  let picked = pickUniformSticker();
+  let rerolls = 0;
+
+  while (
+    STICKER_CATALOG.length > 1 &&
+    state.lastStickerId &&
+    picked.id === state.lastStickerId &&
+    rerolls < maxRerolls
+  ) {
+    picked = pickUniformSticker();
+    rerolls += 1;
+  }
+
+  state.lastStickerId = picked.id;
+  return picked;
 }
 
 function speakWelcome(onDone) {

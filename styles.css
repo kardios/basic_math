@@ -127,6 +127,14 @@ h1 {
   justify-content: center;
 }
 
+#endGameView {
+  text-align: center;
+}
+
+#endGameView .setup-actions {
+  justify-content: center;
+}
+
 .primary-button {
   background: linear-gradient(180deg, #ffe88e, #ffc95f);
   color: #211440;
@@ -305,6 +313,25 @@ h1 {
   margin: 0;
   font-weight: 800;
   font-size: 0.98rem;
+}
+
+.session-score-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 11px;
+  flex-wrap: wrap;
+  margin: 0 0 11px;
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.session-score-row p {
+  margin: 0;
+  color: var(--mint);
+  font-size: 0.94rem;
+  font-weight: 800;
 }
 
 .reward-header {

@@ -61,7 +61,7 @@ Primary fact range: 2 through 10.
 ### 4.6 End of Round
 
 - After question 10 is evaluated, show end screen with score summary.
-- End screen includes a restart button to begin a new 10-question round.
+- End screen includes a `Resume Game` button to begin a new 10-question round.
 
 ## 5) Scoring and Rewards
 
@@ -72,6 +72,10 @@ Primary fact range: 2 through 10.
   - Wrong count
   - Streak count (consecutive correct for 3-streak sticker)
   - Combo count (consecutive correct for 10-combo sticker)
+  - Total stars count (across the current browser session)
+  - Total stickers count (across the current browser session)
+
+Session totals are in-memory only (no local storage) and reset on page refresh/reopen.
 
 ### 5.2 Reward Rules
 
@@ -118,11 +122,8 @@ Primary fact range: 2 through 10.
 
 ### 7.1 Start Screen
 
-- Display title text: "Welcome to Magic Multiplication" in the main header/hero.
-- Setup panel may include a short subheading (for example, "Before You Start") plus helper text.
-- Display short helper text explaining 10-question typing game.
+- Display title text: "Magic Multiplication" in the main header/hero.
 - Provide a clear primary button: "Start Game".
-- Display lightweight status text area for startup messaging.
 
 ### 7.2 Game Screen
 
@@ -134,6 +135,9 @@ Primary fact range: 2 through 10.
   - Correct count
   - Streak count
   - Combo count
+- Show totals row with:
+  - Total Stars
+  - Total Stickers
 - Show reward section split into:
   - Stars/crosses area
   - Sticker area
@@ -143,9 +147,9 @@ Primary fact range: 2 through 10.
 - Show positive completion heading.
 - Show summary sentence with:
   - Correct answers out of 10
-  - Star count
-  - Sticker count
-- Show restart button.
+  - Stars and stickers earned this round
+  - Total stars and stickers for current session (`Total: ...`)
+- Show `Resume Game` button.
 
 ## 8) Edge Cases and Deterministic Behavior
 
@@ -168,6 +172,7 @@ Primary fact range: 2 through 10.
 - Starting a round always displays `Question 1 / 10`.
 - After each answered question, UI advances to the next question within approximately 2 seconds.
 - Round ends after exactly 10 evaluated questions.
+- `Resume Game` from end screen starts a fresh 10-question round.
 
 ### 9.2 Randomization
 
@@ -185,6 +190,8 @@ Primary fact range: 2 through 10.
 - Every 3 consecutive correct answers yields one regular sticker and resets 3-streak counter.
 - Every 10 consecutive correct answers yields one sticker and resets 10-combo counter.
 - Any incorrect answer resets both streak and combo counters.
+- Total stars/stickers continue across rounds during the same page session.
+- Total stars/stickers reset when the page is refreshed or reopened.
 
 ### 9.5 Voice
 

@@ -15,7 +15,6 @@ const gameView = document.getElementById("gameView");
 const endGameView = document.getElementById("endGameView");
 const startGameButton = document.getElementById("startGameButton");
 const restartButton = document.getElementById("restartButton");
-const setupStatus = document.getElementById("setupStatus");
 const endSummaryText = document.getElementById("endSummaryText");
 
 const roundProgressText = document.getElementById("roundProgressText");
@@ -26,6 +25,8 @@ const typedAnswerInput = document.getElementById("typedAnswerInput");
 const correctCountText = document.getElementById("correctCountText");
 const streakText = document.getElementById("streakText");
 const comboText = document.getElementById("comboText");
+const sessionStarCountText = document.getElementById("sessionStarCountText");
+const sessionStickerCountText = document.getElementById("sessionStickerCountText");
 const starTray = document.getElementById("starTray");
 const stickerTray = document.getElementById("stickerTray");
 
@@ -42,6 +43,8 @@ const state = {
   streakCount: 0,
   comboCount: 0,
   normalStickerCount: 0,
+  sessionStarCount: 0,
+  sessionStickerCount: 0,
   x: 2,
   y: 2,
   expected: 4,
@@ -67,7 +70,6 @@ initialize();
 
 function initialize() {
   showSetupView();
-  renderSetupStatus("Tap Start to begin.");
 }
 
 function startGame() {
@@ -77,7 +79,6 @@ function startGame() {
 
   if (!state.didStartOnce) {
     state.didStartOnce = true;
-    renderSetupStatus("Welcome!");
     speakWelcome(() => beginRound());
     return;
   }
@@ -241,7 +242,8 @@ function endGame() {
 
   const summary =
     `You got ${state.correctCount} out of ${TOTAL_QUESTIONS} correct. ` +
-    `You earned ${state.correctCount} stars and ${state.normalStickerCount} stickers.`;
+    `You earned ${state.correctCount} stars and ${state.normalStickerCount} stickers this round. ` +
+    `Total: ${state.sessionStarCount} stars and ${state.sessionStickerCount} stickers.`;
   endSummaryText.textContent = summary;
   speakFinalSummary(summary);
 }
@@ -256,10 +258,8 @@ function updateStats() {
   correctCountText.textContent = String(state.correctCount);
   streakText.textContent = String(state.streakCount);
   comboText.textContent = String(state.comboCount);
-}
-
-function renderSetupStatus(text) {
-  setupStatus.textContent = text;
+  sessionStarCountText.textContent = String(state.sessionStarCount);
+  sessionStickerCountText.textContent = String(state.sessionStickerCount);
 }
 
 function addRewardStar() {
@@ -267,6 +267,7 @@ function addRewardStar() {
   node.className = "reward-star";
   node.textContent = "⭐";
   starTray.appendChild(node);
+  state.sessionStarCount += 1;
 }
 
 function addRewardCross() {
@@ -279,10 +280,11 @@ function addRewardCross() {
 function addRewardSticker() {
   const node = document.createElement("img");
   node.className = "reward-friend";
-  node.alt = "Sanrio sticker reward";
+  node.alt = "Sticker reward";
   node.src = STICKER_IMAGE_PATHS[state.stickerIndex % STICKER_IMAGE_PATHS.length];
   state.stickerIndex += 1;
   stickerTray.appendChild(node);
+  state.sessionStickerCount += 1;
 }
 
 function speakWelcome(onDone) {

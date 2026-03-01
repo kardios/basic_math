@@ -2,6 +2,10 @@ const TOTAL_QUESTIONS = 10;
 const DEFAULT_GAMES_PER_SESSION = 5;
 const MIN_GAMES_PER_SESSION = 1;
 const MAX_GAMES_PER_SESSION = 20;
+const MIN_FACT_VALUE = 2;
+const MAX_FACT_VALUE = 19;
+const DEFAULT_FACT_LOWER_BOUND = 2;
+const DEFAULT_FACT_UPPER_BOUND = 10;
 const AUTO_NEXT_DELAY_MS = 2000;
 const FEEDBACK_SPEECH_MAX_WAIT_MS = 5000;
 const STREAK_FOR_STICKER = 3;
@@ -11,89 +15,47 @@ const STICKER_CATALOG = [
   { id: "kitty_bow", src: "./assets/stickers/sanrio_kitty_bow.svg", rarity: "common" },
   { id: "bunny_ribbon", src: "./assets/stickers/sanrio_bunny_ribbon.svg", rarity: "rare" },
   { id: "puppy_cloud", src: "./assets/stickers/sanrio_puppy_cloud.svg", rarity: "ultra" },
+  { id: "rilakkuma_bounce_bear", src: "./assets/stickers/rilakkuma_bounce_bear.svg", rarity: "common" },
   {
-    id: "inspired_common_bowcat",
-    src: "./assets/stickers/sanrio_inspired_common_bowcat.svg",
+    id: "rilakkuma_blanket_burrito_bear",
+    src: "./assets/stickers/rilakkuma_blanket_burrito_bear.svg",
+    rarity: "common",
+  },
+  { id: "kawaii_frog_lily", src: "./assets/stickers/kawaii_frog_lily.svg", rarity: "common" },
+  { id: "kawaii_bear_donut", src: "./assets/stickers/kawaii_bear_donut.svg", rarity: "common" },
+  {
+    id: "kawaii_bunny_strawberry",
+    src: "./assets/stickers/kawaii_bunny_strawberry.svg",
     rarity: "common",
   },
   {
-    id: "inspired_common_bunnywink",
-    src: "./assets/stickers/sanrio_inspired_common_bunnywink.svg",
+    id: "mofusand_milk_tea_splash_cat",
+    src: "./assets/stickers/mofusand_milk_tea_splash_cat.svg",
     rarity: "common",
   },
   {
-    id: "inspired_common_puppyheart",
-    src: "./assets/stickers/sanrio_inspired_common_puppyheart.svg",
+    id: "mofusand_scarf_puff_cat",
+    src: "./assets/stickers/mofusand_scarf_puff_cat.svg",
     rarity: "common",
   },
   {
-    id: "inspired_common_cloudfriend",
-    src: "./assets/stickers/sanrio_inspired_common_cloudfriend.svg",
+    id: "cute_bear_star_hug",
+    src: "./assets/stickers/cute_bear_star_hug.svg",
     rarity: "common",
   },
   {
-    id: "inspired_common_flowerpal",
-    src: "./assets/stickers/sanrio_inspired_common_flowerpal.svg",
+    id: "marine_playful_baby_shark",
+    src: "./assets/stickers/marine_playful_baby_shark.svg",
     rarity: "common",
   },
   {
-    id: "inspired_common_starsprout",
-    src: "./assets/stickers/sanrio_inspired_common_starsprout.svg",
+    id: "marine_playful_quirky_fish",
+    src: "./assets/stickers/marine_playful_quirky_fish.svg",
     rarity: "common",
   },
   {
-    id: "inspired_rare_royalcrown",
-    src: "./assets/stickers/sanrio_inspired_rare_royalcrown.svg",
-    rarity: "rare",
-  },
-  {
-    id: "inspired_rare_gemwink",
-    src: "./assets/stickers/sanrio_inspired_rare_gemwink.svg",
-    rarity: "rare",
-  },
-  {
-    id: "inspired_rare_cometfriend",
-    src: "./assets/stickers/sanrio_inspired_rare_cometfriend.svg",
-    rarity: "rare",
-  },
-  {
-    id: "inspired_cozy_bear_head",
-    src: "./assets/stickers/inspired_cozy_bear_head.svg",
-    rarity: "common",
-  },
-  {
-    id: "inspired_snow_bear_head",
-    src: "./assets/stickers/inspired_snow_bear_head.svg",
-    rarity: "common",
-  },
-  {
-    id: "inspired_pancake_bear",
-    src: "./assets/stickers/inspired_pancake_bear.svg",
-    rarity: "common",
-  },
-  {
-    id: "inspired_teatime_snow_bear",
-    src: "./assets/stickers/inspired_teatime_snow_bear.svg",
-    rarity: "common",
-  },
-  {
-    id: "inspired_nap_duo_badge",
-    src: "./assets/stickers/inspired_nap_duo_badge.svg",
-    rarity: "common",
-  },
-  {
-    id: "inspired_blob_friend",
-    src: "./assets/stickers/inspired_blob_friend.svg",
-    rarity: "common",
-  },
-  {
-    id: "inspired_minimal_bunny_face",
-    src: "./assets/stickers/inspired_minimal_bunny_face.svg",
-    rarity: "common",
-  },
-  {
-    id: "inspired_chubby_kitty_head",
-    src: "./assets/stickers/inspired_chubby_kitty_head.svg",
+    id: "marine_playful_sailor_penguin",
+    src: "./assets/stickers/marine_playful_sailor_penguin.svg",
     rarity: "common",
   },
 ];
@@ -109,6 +71,13 @@ const sessionStickerBreakdown = document.getElementById("sessionStickerBreakdown
 const sessionGamesDecrementButton = document.getElementById("sessionGamesDecrementButton");
 const sessionGamesIncrementButton = document.getElementById("sessionGamesIncrementButton");
 const sessionGamesValueText = document.getElementById("sessionGamesValueText");
+const setupStickerPreview = document.getElementById("setupStickerPreview");
+const rangeLowerDecrementButton = document.getElementById("rangeLowerDecrementButton");
+const rangeLowerIncrementButton = document.getElementById("rangeLowerIncrementButton");
+const rangeLowerValueText = document.getElementById("rangeLowerValueText");
+const rangeUpperDecrementButton = document.getElementById("rangeUpperDecrementButton");
+const rangeUpperIncrementButton = document.getElementById("rangeUpperIncrementButton");
+const rangeUpperValueText = document.getElementById("rangeUpperValueText");
 
 const roundProgressText = document.getElementById("roundProgressText");
 const questionText = document.getElementById("questionText");
@@ -141,6 +110,10 @@ const state = {
   sessionGamesPlayed: 0,
   gamesPerSession: DEFAULT_GAMES_PER_SESSION,
   activeGamesPerSession: DEFAULT_GAMES_PER_SESSION,
+  factLowerBound: DEFAULT_FACT_LOWER_BOUND,
+  factUpperBound: DEFAULT_FACT_UPPER_BOUND,
+  activeFactLowerBound: DEFAULT_FACT_LOWER_BOUND,
+  activeFactUpperBound: DEFAULT_FACT_UPPER_BOUND,
   sessionStickerTypeCounts: createEmptyStickerCountMap(),
   sessionEarnedStickerIds: [],
   sessionComplete: false,
@@ -164,14 +137,33 @@ startGameButton.addEventListener("click", startGame);
 restartButton.addEventListener("click", onEndActionButton);
 sessionGamesDecrementButton.addEventListener("click", () => updateGamesPerSession(-1));
 sessionGamesIncrementButton.addEventListener("click", () => updateGamesPerSession(1));
+rangeLowerDecrementButton.addEventListener("click", () => updateFactLowerBound(-1));
+rangeLowerIncrementButton.addEventListener("click", () => updateFactLowerBound(1));
+rangeUpperDecrementButton.addEventListener("click", () => updateFactUpperBound(-1));
+rangeUpperIncrementButton.addEventListener("click", () => updateFactUpperBound(1));
 typedAnswerForm.addEventListener("submit", onTypedSubmit);
 typedAnswerInput.addEventListener("input", onTypedInput);
+document.addEventListener("keydown", onGlobalKeyDown);
 
 initialize();
 
 function initialize() {
   resetSessionState({ preserveSelection: false });
+  renderSetupStickerPreview();
   showSetupView();
+}
+
+function renderSetupStickerPreview() {
+  if (!setupStickerPreview) {
+    return;
+  }
+  const stickerItemsMarkup = STICKER_CATALOG.map((sticker) => {
+    const stickerName = formatStickerName(sticker.id);
+    return `<img class="reward-friend setup-preview-sticker" src="${sticker.src}" alt="${stickerName} sticker" loading="lazy" />`;
+  }).join("");
+  setupStickerPreview.innerHTML =
+    `<p class="session-stepper-label setup-preview-label">Sticker Collection</p>` +
+    `<div class="setup-preview-strip">${stickerItemsMarkup}</div>`;
 }
 
 function onEndActionButton() {
@@ -201,6 +193,11 @@ function startGame() {
 }
 
 function beginRound() {
+  const activeBounds = normalizeFactBounds(state.factLowerBound, state.factUpperBound);
+  state.factLowerBound = activeBounds.lower;
+  state.factUpperBound = activeBounds.upper;
+  state.activeFactLowerBound = activeBounds.lower;
+  state.activeFactUpperBound = activeBounds.upper;
   state.phase = "asking";
   state.questionIndex = 0;
   state.correctCount = 0;
@@ -208,7 +205,11 @@ function beginRound() {
   state.streakCount = 0;
   state.comboCount = 0;
   state.normalStickerCount = 0;
-  state.questionPool = buildQuestionPool(TOTAL_QUESTIONS);
+  state.questionPool = buildQuestionPool(
+    TOTAL_QUESTIONS,
+    state.activeFactLowerBound,
+    state.activeFactUpperBound
+  );
   state.lastStickerId = null;
   state.nextQuestionDueAtMs = 0;
   state.questionPromptToken = 0;
@@ -240,7 +241,11 @@ function askNextQuestion() {
   state.phase = "asking";
   let pair = state.questionPool[state.questionIndex];
   if (!pair) {
-    state.questionPool = buildQuestionPool(TOTAL_QUESTIONS);
+    state.questionPool = buildQuestionPool(
+      TOTAL_QUESTIONS,
+      state.activeFactLowerBound,
+      state.activeFactUpperBound
+    );
     state.questionIndex = 0;
     pair = state.questionPool[state.questionIndex];
   }
@@ -283,6 +288,29 @@ function onTypedInput() {
   const digitsOnly = typedAnswerInput.value.replace(/\D/g, "").slice(0, 3);
   if (typedAnswerInput.value !== digitsOnly) {
     typedAnswerInput.value = digitsOnly;
+  }
+}
+
+function onGlobalKeyDown(event) {
+  const isEnter = event.key === "Enter" || event.code === "NumpadEnter";
+  if (!isEnter || event.repeat || event.ctrlKey || event.altKey || event.metaKey || event.shiftKey) {
+    return;
+  }
+
+  // Keep gameplay Enter behavior untouched so typed answers still submit normally.
+  if (state.phase === "asking") {
+    return;
+  }
+
+  if (isViewVisible(setupView)) {
+    event.preventDefault();
+    startGameButton.click();
+    return;
+  }
+
+  if (isViewVisible(endGameView)) {
+    event.preventDefault();
+    restartButton.click();
   }
 }
 
@@ -364,7 +392,7 @@ function endGame() {
       `Total stars: ${state.sessionStarCount}. ` +
       `Total stickers: ${state.sessionStickerCount}.`;
     renderSessionStickerBreakdown();
-    restartButton.textContent = "Start New Session";
+    restartButton.textContent = "Start Over";
     speakFinalSummary(
       `Session complete! You earned ${state.sessionStarCount} stars and ` +
         `${state.sessionStickerCount} stickers.`
@@ -401,13 +429,24 @@ function showSetupView() {
   setupView.classList.remove("hidden");
 }
 
+function isViewVisible(viewNode) {
+  return !viewNode.classList.contains("hidden");
+}
+
 function resetSessionState({ preserveSelection = true } = {}) {
   clearNextQuestionTimeout();
   stopAllSpeech();
   const retainedGamesPerSession = preserveSelection
     ? state.gamesPerSession
     : DEFAULT_GAMES_PER_SESSION;
+  const retainedFactLowerBound = preserveSelection
+    ? state.factLowerBound
+    : DEFAULT_FACT_LOWER_BOUND;
+  const retainedFactUpperBound = preserveSelection
+    ? state.factUpperBound
+    : DEFAULT_FACT_UPPER_BOUND;
   const clampedGamesPerSession = clampGamesPerSession(retainedGamesPerSession);
+  const normalizedFactBounds = normalizeFactBounds(retainedFactLowerBound, retainedFactUpperBound);
   state.phase = "setup";
   state.questionIndex = 0;
   state.correctCount = 0;
@@ -420,6 +459,10 @@ function resetSessionState({ preserveSelection = true } = {}) {
   state.sessionGamesPlayed = 0;
   state.gamesPerSession = clampedGamesPerSession;
   state.activeGamesPerSession = clampedGamesPerSession;
+  state.factLowerBound = normalizedFactBounds.lower;
+  state.factUpperBound = normalizedFactBounds.upper;
+  state.activeFactLowerBound = normalizedFactBounds.lower;
+  state.activeFactUpperBound = normalizedFactBounds.upper;
   state.sessionStickerTypeCounts = createEmptyStickerCountMap();
   state.sessionEarnedStickerIds = [];
   state.questionPool = [];
@@ -437,11 +480,25 @@ function resetSessionState({ preserveSelection = true } = {}) {
   restartButton.textContent = "Resume Game";
   clearSessionStickerBreakdown();
   updateSessionGamesControl();
+  updateFactRangeControls();
   updateStats();
 }
 
 function clampGamesPerSession(value) {
   return Math.max(MIN_GAMES_PER_SESSION, Math.min(MAX_GAMES_PER_SESSION, value));
+}
+
+function clampFactValue(value) {
+  return Math.max(MIN_FACT_VALUE, Math.min(MAX_FACT_VALUE, value));
+}
+
+function normalizeFactBounds(lowerBound, upperBound) {
+  const clampedLower = clampFactValue(lowerBound);
+  const clampedUpper = clampFactValue(upperBound);
+  return {
+    lower: Math.min(clampedLower, clampedUpper),
+    upper: Math.max(clampedLower, clampedUpper),
+  };
 }
 
 function updateGamesPerSession(delta) {
@@ -462,6 +519,52 @@ function updateSessionGamesControl() {
   sessionGamesIncrementButton.disabled = atMax;
   sessionGamesDecrementButton.setAttribute("aria-disabled", String(atMin));
   sessionGamesIncrementButton.setAttribute("aria-disabled", String(atMax));
+}
+
+function updateFactLowerBound(delta) {
+  const nextValue = clampFactValue(state.factLowerBound + delta);
+  if (nextValue === state.factLowerBound) {
+    updateFactRangeControls();
+    return;
+  }
+  state.factLowerBound = nextValue;
+  if (state.factLowerBound > state.factUpperBound) {
+    state.factUpperBound = state.factLowerBound;
+  }
+  updateFactRangeControls();
+}
+
+function updateFactUpperBound(delta) {
+  const nextValue = clampFactValue(state.factUpperBound + delta);
+  if (nextValue === state.factUpperBound) {
+    updateFactRangeControls();
+    return;
+  }
+  state.factUpperBound = nextValue;
+  if (state.factUpperBound < state.factLowerBound) {
+    state.factLowerBound = state.factUpperBound;
+  }
+  updateFactRangeControls();
+}
+
+function updateFactRangeControls() {
+  rangeLowerValueText.textContent = String(state.factLowerBound);
+  rangeUpperValueText.textContent = String(state.factUpperBound);
+
+  const lowerAtMin = state.factLowerBound <= MIN_FACT_VALUE;
+  const lowerAtMax = state.factLowerBound >= MAX_FACT_VALUE;
+  const upperAtMin = state.factUpperBound <= MIN_FACT_VALUE;
+  const upperAtMax = state.factUpperBound >= MAX_FACT_VALUE;
+
+  rangeLowerDecrementButton.disabled = lowerAtMin;
+  rangeLowerIncrementButton.disabled = lowerAtMax;
+  rangeUpperDecrementButton.disabled = upperAtMin;
+  rangeUpperIncrementButton.disabled = upperAtMax;
+
+  rangeLowerDecrementButton.setAttribute("aria-disabled", String(lowerAtMin));
+  rangeLowerIncrementButton.setAttribute("aria-disabled", String(lowerAtMax));
+  rangeUpperDecrementButton.setAttribute("aria-disabled", String(upperAtMin));
+  rangeUpperIncrementButton.setAttribute("aria-disabled", String(upperAtMax));
 }
 
 function updateStats() {
@@ -773,15 +876,26 @@ function playRewardToneSequence(tones) {
   }
 }
 
-function buildQuestionPool(count) {
+function buildQuestionPool(count, lowerBound = DEFAULT_FACT_LOWER_BOUND, upperBound = DEFAULT_FACT_UPPER_BOUND) {
   const pairs = [];
-  for (let x = 2; x <= 10; x += 1) {
-    for (let y = 2; y <= 10; y += 1) {
+  const normalizedBounds = normalizeFactBounds(lowerBound, upperBound);
+  for (let x = normalizedBounds.lower; x <= normalizedBounds.upper; x += 1) {
+    for (let y = normalizedBounds.lower; y <= normalizedBounds.upper; y += 1) {
       pairs.push({ x, y });
     }
   }
   shuffleArray(pairs);
-  return pairs.slice(0, count);
+  if (pairs.length >= count) {
+    return pairs.slice(0, count);
+  }
+
+  const extendedPairs = [...pairs];
+  let nextPairIndex = 0;
+  while (extendedPairs.length < count) {
+    extendedPairs.push(pairs[nextPairIndex % pairs.length]);
+    nextPairIndex += 1;
+  }
+  return extendedPairs;
 }
 
 function shuffleArray(items) {

@@ -6,7 +6,7 @@ Magic Multiplication is a browser-based practice game for children to improve mu
 The app presents one multiplication question at a time, accepts typed numeric answers, provides spoken prompts and feedback, and gives visual rewards to keep motivation high.
 
 Target learner: early elementary students practicing multiplication facts.
-Primary fact range: 2 through 10.
+Primary fact range defaults to 2 through 10 and is configurable from 2 through 19.
 
 ## 2) Goals
 
@@ -27,16 +27,17 @@ Primary fact range: 2 through 10.
 ### 4.1 Round Structure
 
 - A round consists of exactly 10 questions.
-- Each question is a multiplication fact where both operands are integers from 2 to 10 inclusive.
+- Each question is a multiplication fact where both operands are integers from the selected bounds (inclusive).
 - At question 10 completion, the round ends and an end-of-round summary is shown.
 - Rounds are grouped into a session with configurable length (`gamesPerSession`).
 - Session length defaults to 5 rounds and is adjustable on the start screen from 1 to 20 rounds.
 
 ### 4.2 Question Selection and Randomization
 
-- For each round, build a candidate pool of all operand pairs from 2 to 10.
+- For each round, build a candidate pool of all operand pairs within the selected lower and upper bounds.
 - Shuffle the pool and use the first 10 pairs for that round.
-- Questions within a round must not repeat the same operand pair.
+- If the candidate pool has at least 10 unique pairs, questions within a round must not repeat the same operand pair.
+- If the candidate pool has fewer than 10 unique pairs, repeat operand pairs as needed to still produce 10 questions.
 - A new round must reshuffle and produce a fresh set/order.
 
 ### 4.3 Answer Input and Validation
@@ -64,7 +65,7 @@ Primary fact range: 2 through 10.
 
 - After question 10 is evaluated, show end screen.
 - If the session is not complete, show per-round summary and `Resume Game` to begin the next round.
-- If the session is complete, show final session summary and `Start New Session`.
+- If the session is complete, show final session summary and `Start Over`.
 - Starting a new session resets session progress counters and keeps the currently selected session-length value.
 
 ## 5) Scoring and Rewards
@@ -100,7 +101,7 @@ Session totals are in-memory only (no local storage) and reset on page refresh/r
 ### 5.3 Sticker Selection Rules
 
 - Sticker selection uses equal probability across all entries in `STICKER_CATALOG`.
-- Current catalog size is 20 stickers.
+- Current catalog size is 14 stickers.
 - Selection source of truth is the catalog array (adding/removing entries changes draw probability automatically).
 - Immediate duplicate stickers are avoided with bounded rerolls.
   - If a drawn sticker equals the previous sticker, reroll up to 4 times.
@@ -144,6 +145,13 @@ Session totals are in-memory only (no local storage) and reset on page refresh/r
 - Show session-length stepper labeled "Games this session".
   - Decrement (`-`) and increment (`+`) controls.
   - Default value `5`, min `1`, max `20`.
+- Show multiplication range steppers:
+  - `Lower bound` and `Upper bound`.
+  - Decrement (`-`) and increment (`+`) controls for each.
+  - Allowed values `2` through `19`.
+  - Default values lower `2`, upper `10`.
+  - Bounds auto-correct to keep `lower <= upper`.
+- Show a compact sticker preview bar on the opening screen displaying all catalog stickers.
 - Provide a clear primary button: "Start Game".
 
 ### 7.2 Game Screen
@@ -174,9 +182,9 @@ Session totals are in-memory only (no local storage) and reset on page refresh/r
   - Show final totals for stars and stickers.
   - Show a celebratory sticker wall with every earned sticker instance (duplicates included).
   - Sticker wall tiles use the same visual size as in-game sticker rewards.
-  - Show `Start New Session` button.
+  - Show `Start Over` button.
 - Final-mode sticker wall replaces the compact breakdown content in the same wrap-up container.
-- Wrap-up sticker wall uses responsive grid layout (5 per row on large screens, fewer columns on narrower screens).
+- Wrap-up sticker wall uses a responsive wrapping layout for full-size stickers and scrolls if needed.
 
 ## 8) Edge Cases and Deterministic Behavior
 
@@ -201,11 +209,12 @@ Session totals are in-memory only (no local storage) and reset on page refresh/r
 - Round ends after exactly 10 evaluated questions.
 - `Resume Game` from non-final end screen starts the next 10-question round in the same session.
 - Session completes after the configured number of rounds.
-- On session completion, end screen shows final summary and `Start New Session`.
+- On session completion, end screen shows final summary and `Start Over`.
 
 ### 9.2 Randomization
 
-- In a single round, no operand pair is repeated.
+- In a single round, no operand pair is repeated when the selected bounds provide at least 10 unique pairs.
+- When selected bounds provide fewer than 10 unique pairs, repeated pairs are expected to fill the round to 10 questions.
 - Across two back-to-back rounds, question order differs in most runs due to reshuffle.
 
 ### 9.3 Input and Evaluation
@@ -230,14 +239,22 @@ Session totals are in-memory only (no local storage) and reset on page refresh/r
 - Completing that many rounds triggers final session summary.
 - Starting a new session preserves the selected stepper value.
 
-### 9.6 Sticker Draw and Wrap-Up Collection
+### 9.6 Fact Range Control
+
+- Start screen shows lower/upper bound steppers with defaults `2` and `10`.
+- Bound steppers clamp at `2` and `19`.
+- Bounds auto-correct so lower never exceeds upper.
+- Selected bounds are applied to both operands when generating questions.
+- Selected bounds persist across rounds and new sessions until changed.
+
+### 9.7 Sticker Draw and Wrap-Up Collection
 
 - Sticker draw is approximately uniform across catalog entries over many draws.
 - Immediate back-to-back duplicates are reduced by reroll logic.
 - Final session wrap-up displays every earned sticker instance in a full-size sticker wall (duplicates included).
 - Earned sticker instance tracking is reset only when a new session starts, not between rounds.
 
-### 9.7 Voice
+### 9.8 Voice
 
 - Welcome, question prompts, answer feedback, and end summary are attempted via speech synthesis.
 - If speech fails, app remains fully playable and progression still works.
@@ -247,7 +264,7 @@ Session totals are in-memory only (no local storage) and reset on page refresh/r
 
 ## 10) Out of Scope (This Version)
 
-- Fact ranges beyond 2-10.
+- Fact ranges outside 2-19.
 - Difficulty levels or adaptive sequencing.
 - Persistent profiles, saved scores, badges, or parental dashboards.
 - Localization/multi-language UI.

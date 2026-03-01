@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Bear donut sticker">
+  <rect width="96" height="96" rx="18" fill="#fff7ee"/>
+  <!-- head -->
+  <ellipse cx="48" cy="56" rx="28" ry="24" fill="#ffffff" stroke="#e7e0d6" stroke-width="2"/>
+  <circle cx="32" cy="34" r="10" fill="#ffffff" stroke="#e7e0d6" stroke-width="2"/>
+  <circle cx="64" cy="34" r="10" fill="#ffffff" stroke="#e7e0d6" stroke-width="2"/>
+  <circle cx="32" cy="34" r="4.2" fill="#f2d3b1"/>
+  <circle cx="64" cy="34" r="4.2" fill="#f2d3b1"/>
+  <!-- face -->
+  <ellipse cx="40" cy="55" rx="3.0" ry="4.0" fill="#2f3045"/>
+  <ellipse cx="56" cy="55" rx="3.0" ry="4.0" fill="#2f3045"/>
+  <ellipse cx="48" cy="61" rx="4.4" ry="3.2" fill="#ffcb74"/>
+  <path d="M44.5 66c1.6 2.1 2.9 3 3.5 3s1.9-.9 3.5-3" fill="none" stroke="#2f3045" stroke-width="2" stroke-linecap="round"/>
+  <path d="M30 63c3 3 6 4 9 4" fill="none" stroke="#ff9bbd" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M66 63c-3 3-6 4-9 4" fill="none" stroke="#ff9bbd" stroke-width="2.4" stroke-linecap="round"/>
+  <!-- donut -->
+  <g transform="translate(0 0)">
+    <circle cx="76" cy="70" r="11.5" fill="#ffd7ea" stroke="#e7b6cb" stroke-width="2"/>
+    <circle cx="76" cy="70" r="4.5" fill="#fff7ee"/>
+    <circle cx="71" cy="67" r="1.4" fill="#9fe6ff"/>
+    <circle cx="79" cy="66" r="1.4" fill="#ffe08a"/>
+    <circle cx="81" cy="73" r="1.4" fill="#b8f0c5"/>
+    <circle cx="72" cy="74" r="1.4" fill="#ff9bbd"/>
+  </g>
+</svg>

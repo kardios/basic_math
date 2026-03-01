@@ -19,26 +19,79 @@
       </header>
 
       <section id="setupView" class="panel">
-        <div class="session-stepper" aria-label="Session length control">
-          <p class="session-stepper-label">Games this session</p>
-          <div class="session-stepper-controls">
-            <button
-              id="sessionGamesDecrementButton"
-              class="secondary-button session-stepper-button"
-              type="button"
-              aria-label="Decrease games per session"
-            >
-              -
-            </button>
-            <p id="sessionGamesValueText" class="session-stepper-value" aria-live="polite">5</p>
-            <button
-              id="sessionGamesIncrementButton"
-              class="secondary-button session-stepper-button"
-              type="button"
-              aria-label="Increase games per session"
-            >
-              +
-            </button>
+        <section
+          id="setupStickerPreview"
+          class="setup-sticker-preview"
+          aria-label="Sticker collection preview"
+        ></section>
+        <div class="setup-steppers">
+          <div class="session-stepper" aria-label="Session length control">
+            <p class="session-stepper-label">Games this session</p>
+            <div class="session-stepper-controls">
+              <button
+                id="sessionGamesDecrementButton"
+                class="secondary-button session-stepper-button"
+                type="button"
+                aria-label="Decrease games per session"
+              >
+                -
+              </button>
+              <p id="sessionGamesValueText" class="session-stepper-value" aria-live="polite">5</p>
+              <button
+                id="sessionGamesIncrementButton"
+                class="secondary-button session-stepper-button"
+                type="button"
+                aria-label="Increase games per session"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          <div class="session-stepper" aria-label="Fact range lower bound control">
+            <p class="session-stepper-label">Lower bound</p>
+            <div class="session-stepper-controls">
+              <button
+                id="rangeLowerDecrementButton"
+                class="secondary-button session-stepper-button"
+                type="button"
+                aria-label="Decrease lower multiplication bound"
+              >
+                -
+              </button>
+              <p id="rangeLowerValueText" class="session-stepper-value" aria-live="polite">2</p>
+              <button
+                id="rangeLowerIncrementButton"
+                class="secondary-button session-stepper-button"
+                type="button"
+                aria-label="Increase lower multiplication bound"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          <div class="session-stepper" aria-label="Fact range upper bound control">
+            <p class="session-stepper-label">Upper bound</p>
+            <div class="session-stepper-controls">
+              <button
+                id="rangeUpperDecrementButton"
+                class="secondary-button session-stepper-button"
+                type="button"
+                aria-label="Decrease upper multiplication bound"
+              >
+                -
+              </button>
+              <p id="rangeUpperValueText" class="session-stepper-value" aria-live="polite">10</p>
+              <button
+                id="rangeUpperIncrementButton"
+                class="secondary-button session-stepper-button"
+                type="button"
+                aria-label="Increase upper multiplication bound"
+              >
+                +
+              </button>
+            </div>
           </div>
         </div>
         <div class="setup-actions">

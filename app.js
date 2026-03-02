@@ -67,6 +67,7 @@ const startGameButton = document.getElementById("startGameButton");
 const restartButton = document.getElementById("restartButton");
 const endTitleText = document.getElementById("endTitleText");
 const endSummaryText = document.getElementById("endSummaryText");
+const wrongAnswerReview = document.getElementById("wrongAnswerReview");
 const sessionStickerBreakdown = document.getElementById("sessionStickerBreakdown");
 const sessionGamesDecrementButton = document.getElementById("sessionGamesDecrementButton");
 const sessionGamesIncrementButton = document.getElementById("sessionGamesIncrementButton");
@@ -87,6 +88,7 @@ const typedAnswerInput = document.getElementById("typedAnswerInput");
 const correctCountText = document.getElementById("correctCountText");
 const streakText = document.getElementById("streakText");
 const comboText = document.getElementById("comboText");
+const roundSessionText = document.getElementById("roundSessionText");
 const sessionStarCountText = document.getElementById("sessionStarCountText");
 const sessionStickerCountText = document.getElementById("sessionStickerCountText");
 const starTray = document.getElementById("starTray");
@@ -116,6 +118,7 @@ const state = {
   activeFactUpperBound: DEFAULT_FACT_UPPER_BOUND,
   sessionStickerTypeCounts: createEmptyStickerCountMap(),
   sessionEarnedStickerIds: [],
+  roundWrongAnswers: [],
   sessionComplete: false,
   x: 2,
   y: 2,
@@ -161,9 +164,7 @@ function renderSetupStickerPreview() {
     const stickerName = formatStickerName(sticker.id);
     return `<img class="reward-friend setup-preview-sticker" src="${sticker.src}" alt="${stickerName} sticker" loading="lazy" />`;
   }).join("");
-  setupStickerPreview.innerHTML =
-    `<p class="session-stepper-label setup-preview-label">Sticker Collection</p>` +
-    `<div class="setup-preview-strip">${stickerItemsMarkup}</div>`;
+  setupStickerPreview.innerHTML = `<div class="setup-preview-strip">${stickerItemsMarkup}</div>`;
 }
 
 function onEndActionButton() {
@@ -217,6 +218,7 @@ function beginRound() {
   state.feedbackSpeechPlaying = false;
   state.feedbackSpeechDeadlineMs = 0;
   state.sessionComplete = false;
+  state.roundWrongAnswers = [];
 
   starTray.innerHTML = "";
   stickerTray.innerHTML = "";
@@ -356,12 +358,18 @@ function resolveWrong(rawInput) {
   state.comboCount = 0;
 
   try {
+    state.roundWrongAnswers.push({
+      x: state.x,
+      y: state.y,
+      userAnswer: rawInput,
+      correctAnswer: state.expected,
+    });
     questionText.textContent = `${state.x} × ${state.y} = ${state.expected}`;
     addRewardCross();
     playIncorrectBuzzSound();
     updateStats();
 
-    const heardPrefix = rawInput ? `You said ${rawInput}. ` : "";
+    const heardPrefix = rawInput ? `You typed ${rawInput}. ` : "";
     const feedback = `${heardPrefix}Incorrect, ${state.x} times ${state.y} equals ${state.expected}.`;
     setResultBox(feedback, "bad");
     speakFeedback(`Incorrect, ${state.x} times ${state.y} equals ${state.expected}.`);
@@ -383,6 +391,7 @@ function endGame() {
   gameView.classList.add("hidden");
   setupView.classList.add("hidden");
   endGameView.classList.remove("hidden");
+  renderWrongAnswerReview();
 
   if (state.sessionGamesPlayed >= state.activeGamesPerSession) {
     state.sessionComplete = true;
@@ -406,10 +415,10 @@ function endGame() {
   endSummaryText.textContent =
     `You got ${state.correctCount} out of ${TOTAL_QUESTIONS} correct. ` +
     `You earned ${state.correctCount} stars and ${state.normalStickerCount} stickers this round. ` +
-    `Total: ${state.sessionStarCount} stars and ${state.sessionStickerCount} stickers. ` +
-    `${roundsLeft} game${roundsLeft === 1 ? "" : "s"} left in this session.`;
+    `${roundsLeft} round${roundsLeft === 1 ? "" : "s"} left in this session. ` +
+    `You have ${state.sessionStarCount} stars and ${state.sessionStickerCount} stickers so far.`;
   clearSessionStickerBreakdown();
-  restartButton.textContent = "Resume Game";
+  restartButton.textContent = "Next Game";
   speakFinalSummary(`${endTitle} ${endSummaryText.textContent}`);
 }
 
@@ -465,6 +474,7 @@ function resetSessionState({ preserveSelection = true } = {}) {
   state.activeFactUpperBound = normalizedFactBounds.upper;
   state.sessionStickerTypeCounts = createEmptyStickerCountMap();
   state.sessionEarnedStickerIds = [];
+  state.roundWrongAnswers = [];
   state.questionPool = [];
   state.nextQuestionDueAtMs = 0;
   state.questionPromptToken = 0;
@@ -477,7 +487,8 @@ function resetSessionState({ preserveSelection = true } = {}) {
   typedAnswerInput.value = "";
   starTray.innerHTML = "";
   stickerTray.innerHTML = "";
-  restartButton.textContent = "Resume Game";
+  restartButton.textContent = "Next Game";
+  clearWrongAnswerReview();
   clearSessionStickerBreakdown();
   updateSessionGamesControl();
   updateFactRangeControls();
@@ -568,6 +579,8 @@ function updateFactRangeControls() {
 }
 
 function updateStats() {
+  const currentRound = Math.min(state.sessionGamesPlayed + 1, state.activeGamesPerSession);
+  roundSessionText.textContent = `${currentRound}/${state.activeGamesPerSession}`;
   correctCountText.textContent = String(state.correctCount);
   streakText.textContent = String(state.streakCount);
   comboText.textContent = String(state.comboCount);
@@ -614,6 +627,38 @@ function createEmptyStickerCountMap() {
 function clearSessionStickerBreakdown() {
   sessionStickerBreakdown.innerHTML = "";
   sessionStickerBreakdown.classList.add("hidden");
+}
+
+function clearWrongAnswerReview() {
+  wrongAnswerReview.innerHTML = "";
+  wrongAnswerReview.classList.add("hidden");
+}
+
+function renderWrongAnswerReview() {
+  if (state.roundWrongAnswers.length === 0) {
+    clearWrongAnswerReview();
+    return;
+  }
+
+  const wrongItemsMarkup = state.roundWrongAnswers
+    .map((entry, index) => {
+      const userAnswer = entry.userAnswer === "" ? "No answer" : entry.userAnswer;
+      return (
+        `<li class="wrong-answer-item">` +
+        `<p class="wrong-answer-question">${index + 1}. ${entry.x} × ${entry.y}</p>` +
+        `<p class="wrong-answer-user">Your answer: <strong>${userAnswer}</strong></p>` +
+        `<p class="wrong-answer-correct">Correct answer: <strong>${entry.correctAnswer}</strong></p>` +
+        `</li>`
+      );
+    })
+    .join("");
+
+  wrongAnswerReview.innerHTML =
+    `<details class="postgame-collapsible">` +
+    `<summary>Review wrong answers (${state.roundWrongAnswers.length})</summary>` +
+    `<ol class="wrong-answer-list">${wrongItemsMarkup}</ol>` +
+    `</details>`;
+  wrongAnswerReview.classList.remove("hidden");
 }
 
 function renderSessionStickerBreakdown() {

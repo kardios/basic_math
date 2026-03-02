@@ -14,86 +14,91 @@
   </head>
   <body>
     <main class="app-shell" aria-live="polite">
-      <header class="hero-panel">
-        <h1>Magic Multiplication</h1>
-      </header>
-
       <section id="setupView" class="panel">
-        <section
-          id="setupStickerPreview"
-          class="setup-sticker-preview"
-          aria-label="Sticker collection preview"
-        ></section>
-        <div class="setup-steppers">
-          <div class="session-stepper" aria-label="Session length control">
-            <p class="session-stepper-label">Games this session</p>
-            <div class="session-stepper-controls">
-              <button
-                id="sessionGamesDecrementButton"
-                class="secondary-button session-stepper-button"
-                type="button"
-                aria-label="Decrease games per session"
-              >
-                -
-              </button>
-              <p id="sessionGamesValueText" class="session-stepper-value" aria-live="polite">5</p>
-              <button
-                id="sessionGamesIncrementButton"
-                class="secondary-button session-stepper-button"
-                type="button"
-                aria-label="Increase games per session"
-              >
-                +
-              </button>
-            </div>
-          </div>
+        <div class="setup-welcome-bar">Welcome to Magic Multiplication!</div>
+        <details class="setup-collapsible">
+          <summary>Sticker Collection</summary>
+          <section
+            id="setupStickerPreview"
+            class="setup-sticker-preview"
+            aria-label="Sticker collection preview"
+          ></section>
+        </details>
+        <details class="setup-collapsible">
+          <summary>Game Settings</summary>
+          <div class="setup-collapsible-content">
+            <div class="setup-steppers">
+              <div class="session-stepper" aria-label="Session length control">
+                <p class="session-stepper-label">How many rounds?</p>
+                <div class="session-stepper-controls">
+                  <button
+                    id="sessionGamesDecrementButton"
+                    class="secondary-button session-stepper-button"
+                    type="button"
+                    aria-label="Decrease games per session"
+                  >
+                    -
+                  </button>
+                  <p id="sessionGamesValueText" class="session-stepper-value" aria-live="polite">5</p>
+                  <button
+                    id="sessionGamesIncrementButton"
+                    class="secondary-button session-stepper-button"
+                    type="button"
+                    aria-label="Increase games per session"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
 
-          <div class="session-stepper" aria-label="Fact range lower bound control">
-            <p class="session-stepper-label">Lower bound</p>
-            <div class="session-stepper-controls">
-              <button
-                id="rangeLowerDecrementButton"
-                class="secondary-button session-stepper-button"
-                type="button"
-                aria-label="Decrease lower multiplication bound"
-              >
-                -
-              </button>
-              <p id="rangeLowerValueText" class="session-stepper-value" aria-live="polite">2</p>
-              <button
-                id="rangeLowerIncrementButton"
-                class="secondary-button session-stepper-button"
-                type="button"
-                aria-label="Increase lower multiplication bound"
-              >
-                +
-              </button>
-            </div>
-          </div>
+              <div class="session-stepper" aria-label="Fact range lower bound control">
+                <p class="session-stepper-label">Smallest number</p>
+                <div class="session-stepper-controls">
+                  <button
+                    id="rangeLowerDecrementButton"
+                    class="secondary-button session-stepper-button"
+                    type="button"
+                    aria-label="Decrease lower multiplication bound"
+                  >
+                    -
+                  </button>
+                  <p id="rangeLowerValueText" class="session-stepper-value" aria-live="polite">2</p>
+                  <button
+                    id="rangeLowerIncrementButton"
+                    class="secondary-button session-stepper-button"
+                    type="button"
+                    aria-label="Increase lower multiplication bound"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
 
-          <div class="session-stepper" aria-label="Fact range upper bound control">
-            <p class="session-stepper-label">Upper bound</p>
-            <div class="session-stepper-controls">
-              <button
-                id="rangeUpperDecrementButton"
-                class="secondary-button session-stepper-button"
-                type="button"
-                aria-label="Decrease upper multiplication bound"
-              >
-                -
-              </button>
-              <p id="rangeUpperValueText" class="session-stepper-value" aria-live="polite">10</p>
-              <button
-                id="rangeUpperIncrementButton"
-                class="secondary-button session-stepper-button"
-                type="button"
-                aria-label="Increase upper multiplication bound"
-              >
-                +
-              </button>
+              <div class="session-stepper" aria-label="Fact range upper bound control">
+                <p class="session-stepper-label">Largest number</p>
+                <div class="session-stepper-controls">
+                  <button
+                    id="rangeUpperDecrementButton"
+                    class="secondary-button session-stepper-button"
+                    type="button"
+                    aria-label="Decrease upper multiplication bound"
+                  >
+                    -
+                  </button>
+                  <p id="rangeUpperValueText" class="session-stepper-value" aria-live="polite">10</p>
+                  <button
+                    id="rangeUpperIncrementButton"
+                    class="secondary-button session-stepper-button"
+                    type="button"
+                    aria-label="Increase upper multiplication bound"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        </details>
         <div class="setup-actions">
           <button id="startGameButton" class="primary-button" type="button">Start Game</button>
         </div>
@@ -125,37 +130,45 @@
         </form>
 
         <section class="score-box">
-          <div class="score-row">
-            <p>Correct: <span id="correctCountText">0</span> / 10</p>
-            <p>Streak: <span id="streakText">0</span></p>
-            <p>Combo: <span id="comboText">0</span></p>
-          </div>
-          <div class="session-score-row">
-            <p>Total Stars: <span id="sessionStarCountText">0</span></p>
-            <p>Total Stickers: <span id="sessionStickerCountText">0</span></p>
-          </div>
-          <div class="reward-header">
-            <h3>Rewards</h3>
-          </div>
-          <div class="reward-bins">
-            <div class="reward-bin">
-              <p class="reward-bin-label">Stars</p>
-              <div id="starTray" class="reward-tray" aria-label="Star tray"></div>
+          <details class="game-collapsible">
+            <summary>Rewards</summary>
+            <div class="game-collapsible-content">
+              <div class="reward-bins">
+                <div class="reward-bin">
+                  <p class="reward-bin-label">Stars</p>
+                  <div id="starTray" class="reward-tray" aria-label="Star tray"></div>
+                </div>
+                <div class="reward-bin">
+                  <p class="reward-bin-label">Stickers</p>
+                  <div id="stickerTray" class="reward-tray" aria-label="Sticker tray"></div>
+                </div>
+              </div>
             </div>
-            <div class="reward-bin">
-              <p class="reward-bin-label">Stickers</p>
-              <div id="stickerTray" class="reward-tray" aria-label="Sticker tray"></div>
+          </details>
+
+          <details class="game-collapsible">
+            <summary>Game stats</summary>
+            <div class="game-collapsible-content">
+              <div class="game-stats-line">
+                <p>Game: <span id="roundSessionText">1/5</span></p>
+                <p>Correct: <span id="correctCountText">0</span> / 10</p>
+                <p>Streak: <span id="streakText">0</span></p>
+                <p>Combo: <span id="comboText">0</span></p>
+                <p>Total Stars: <span id="sessionStarCountText">0</span></p>
+                <p>Total Stickers: <span id="sessionStickerCountText">0</span></p>
+              </div>
             </div>
-          </div>
+          </details>
         </section>
       </section>
 
       <section id="endGameView" class="panel hidden">
         <h2 id="endTitleText">Great job!</h2>
         <p id="endSummaryText" class="support-copy">Score summary appears here.</p>
+        <div id="wrongAnswerReview" class="wrong-answer-review hidden"></div>
         <div id="sessionStickerBreakdown" class="session-sticker-breakdown hidden"></div>
         <div class="setup-actions">
-          <button id="restartButton" class="primary-button" type="button">Resume Game</button>
+          <button id="restartButton" class="primary-button" type="button">Next Game</button>
         </div>
       </section>
     </main>

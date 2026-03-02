@@ -33,20 +33,14 @@ body {
 .app-shell {
   width: min(1360px, 100%);
   display: grid;
-  gap: 19px;
+  gap: 14px;
 }
 
-.hero-panel,
 .panel {
   border: 2px solid var(--panel-border);
   border-radius: 24px;
   background: var(--panel-bg);
   box-shadow: 0 22px 55px rgba(0, 0, 0, 0.35);
-}
-
-.hero-panel {
-  padding: 27px 30px 21px;
-  text-align: center;
 }
 
 .eyebrow {
@@ -128,6 +122,55 @@ h1 {
   gap: 12px;
 }
 
+.setup-welcome-bar {
+  width: min(100%, 860px);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 12px 14px;
+  font-family: "Baloo 2", "Comic Sans MS", cursive;
+  font-size: clamp(1.4rem, 3.6vw, 2rem);
+  line-height: 1.1;
+  color: var(--text-main);
+}
+
+.setup-collapsible {
+  width: min(100%, 860px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+}
+
+.setup-collapsible > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 10px 12px;
+  color: var(--mint);
+  font-size: 0.96rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.setup-collapsible > summary::-webkit-details-marker {
+  display: none;
+}
+
+.setup-collapsible > summary::after {
+  content: " +";
+  float: right;
+}
+
+.setup-collapsible[open] > summary::after {
+  content: " -";
+}
+
+.setup-collapsible-content {
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 10px;
+}
+
 .setup-steppers {
   display: grid;
   gap: 10px;
@@ -135,11 +178,12 @@ h1 {
 }
 
 .setup-sticker-preview {
-  width: min(100%, 860px);
+  width: 100%;
   display: grid;
   gap: 8px;
   justify-items: center;
-  margin-bottom: 4px;
+  padding: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
 }
 
 .setup-preview-label {
@@ -409,12 +453,12 @@ h1 {
   margin-top: 16px;
   border: 2px solid rgba(255, 255, 255, 0.24);
   border-radius: 14px;
-  min-height: 112px;
+  min-height: 48px;
   display: grid;
   place-items: center;
   text-align: center;
-  padding: 14px;
-  font-size: 1.6rem;
+  padding: 7px 11px;
+  font-size: 1.2rem;
   font-weight: 900;
   background: rgba(255, 255, 255, 0.07);
 }
@@ -438,6 +482,7 @@ h1 {
 
 .typed-form {
   margin-top: 14px;
+  width: 100%;
 }
 
 .typed-label {
@@ -450,6 +495,8 @@ h1 {
 .typed-input-row {
   display: flex;
   gap: 10px;
+  width: 100%;
+  align-items: center;
 }
 
 .typed-input {
@@ -459,9 +506,9 @@ h1 {
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.09);
   color: var(--text-main);
-  font-size: 1.52rem;
+  font-size: 1.2rem;
   font-weight: 800;
-  padding: 11px 13px;
+  padding: 7px 11px;
 }
 
 .typed-input:focus {
@@ -482,6 +529,49 @@ h1 {
   border-radius: 14px;
   padding: 14px;
   background: rgba(255, 255, 255, 0.06);
+  display: grid;
+  gap: 10px;
+}
+
+.game-collapsible,
+.postgame-collapsible {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+}
+
+.game-collapsible > summary,
+.postgame-collapsible > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 10px 12px;
+  color: var(--mint);
+  font-size: 0.96rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.game-collapsible > summary::-webkit-details-marker,
+.postgame-collapsible > summary::-webkit-details-marker {
+  display: none;
+}
+
+.game-collapsible > summary::after,
+.postgame-collapsible > summary::after {
+  content: " +";
+  float: right;
+}
+
+.game-collapsible[open] > summary::after,
+.postgame-collapsible[open] > summary::after {
+  content: " -";
+}
+
+.game-collapsible-content {
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 10px;
 }
 
 .score-row {
@@ -496,6 +586,20 @@ h1 {
   margin: 0;
   font-weight: 800;
   font-size: 0.98rem;
+}
+
+.game-stats-line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.game-stats-line p {
+  margin: 0;
+  font-weight: 800;
+  font-size: 0.95rem;
+  white-space: nowrap;
 }
 
 .session-score-row {
@@ -542,7 +646,6 @@ h1 {
 }
 
 .reward-bins {
-  margin-top: 10px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
@@ -553,6 +656,47 @@ h1 {
   border: 1px solid rgba(255, 255, 255, 0.2);
   background: rgba(255, 255, 255, 0.05);
   padding: 10px 11px;
+}
+
+.wrong-answer-review {
+  margin-top: 14px;
+  text-align: left;
+}
+
+.wrong-answer-list {
+  margin: 0;
+  padding: 0 12px 12px 34px;
+  display: grid;
+  gap: 8px;
+}
+
+.wrong-answer-item {
+  border-left: 3px solid rgba(255, 108, 135, 0.9);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: rgba(255, 108, 135, 0.12);
+}
+
+.wrong-answer-question,
+.wrong-answer-user,
+.wrong-answer-correct {
+  margin: 0;
+}
+
+.wrong-answer-question {
+  font-weight: 900;
+  color: #ffd5df;
+}
+
+.wrong-answer-user {
+  margin-top: 4px;
+  color: var(--text-soft);
+}
+
+.wrong-answer-correct {
+  margin-top: 4px;
+  color: var(--mint);
+  font-weight: 800;
 }
 
 .reward-bin-label {
